@@ -1,23 +1,24 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
-# Blueprint object
 health_bp = Blueprint("health", __name__)
 
-@health_bp.route("/")
-def root():
+@health_bp.route("/health", methods=["GET"])
+@jwt_required()
+def health_check():
     """
-    ROOT ROUTE → "/"
-
-    WHY THIS EXISTS?
-    ----------------
-    To verify backend is running
+    PROTECTED HEALTH CHECK
 
     मराठीत:
     ----------
-    Server चालू आहे का
-    हे check करण्यासाठी
+    ह्या route ला
+    token शिवाय access मिळणार नाही
     """
-    return {
-        "status": "UP",
-        "message": "Flask backend is running"
-    }
+
+    user_id = get_jwt_identity()
+
+    return jsonify({
+        "status": "ok",
+        "message": "JWT is valid",
+        "user_id_from_token": user_id
+    }), 200
